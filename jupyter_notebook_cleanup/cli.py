@@ -14,7 +14,7 @@ def parse_args():
     psr.add_argument("files", nargs="*", help="ipynb files")
     psr.add_argument("--dry-run", action="store_true", default=False)
     psr.add_argument("--remove-kernel-metadata", action="store_true", default=False)
-    psr.add_argument("--remove-pycharm-metadata", action="store_true", default=False)
+    psr.add_argument("--remove-pycharm-metadata", action="store_true", default=True)
     psr.add_argument(
         "-p", "--pin-patterns", default="[pin]", help="semicolon-separated patterns (wildcards are not supported)"
     )
@@ -50,6 +50,7 @@ def remove_output_file(path, patterns, remove_kernel_metadata, remove_pycharm_me
         with open(path, "rt", encoding="utf-8") as f:
             data = json.load(f, object_pairs_hook=OrderedDict)
         new_data = remove_output_object(data, patterns, remove_kernel_metadata, remove_pycharm_metadata)
+        print(path)
         before_j = json.dumps(data, **dump_args)
         after_j = json.dumps(new_data, **dump_args)
         # ensure eof newlines
@@ -73,9 +74,9 @@ def remove_output_object(data, patterns, remove_kernel_metadata, remove_pycharm_
             kernelspec["display_name"] = ""
         if "name" in kernelspec:
             kernelspec["name"] = ""
-    if remove_pycharm_metadata:
-        new_data.get("metadata", {}).pop("pycharm", {})
     for cell in new_data["cells"]:
+        if remove_pycharm_metadata:
+            cell.get("metadata", {}).pop("pycharm", {})
         if "execution_count" in cell:
             cell["execution_count"] = None
         if "outputs" in cell and "source" in cell:
