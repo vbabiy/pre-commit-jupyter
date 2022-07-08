@@ -50,7 +50,6 @@ def remove_output_file(path, patterns, remove_kernel_metadata, remove_pycharm_me
         with open(path, "rt", encoding="utf-8") as f:
             data = json.load(f, object_pairs_hook=OrderedDict)
         new_data = remove_output_object(data, patterns, remove_kernel_metadata, remove_pycharm_metadata)
-        print(path)
         before_j = json.dumps(data, **dump_args)
         after_j = json.dumps(new_data, **dump_args)
         # ensure eof newlines
